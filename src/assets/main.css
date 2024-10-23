@@ -1,9 +1,12 @@
 @import './base.css';
 
+/* VUE STYLE */
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  /* max-width: 1280px; */
+  /* margin: 0 auto; */
+  /* padding: 2rem;*/
+  /* height: inherit; */
+  /* width: inherit; */
   font-weight: normal;
 }
 
@@ -15,11 +18,11 @@ a,
   padding: 3px;
 }
 
-@media (hover: hover) {
+/* @media (hover: hover) {
   a:hover {
     background-color: hsla(160, 100%, 37%, 0.2);
   }
-}
+} */
 
 @media (min-width: 1024px) {
   body {
@@ -28,8 +31,101 @@ a,
   }
 
   #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
+    height: 100vh;
+    width: 100vw;
   }
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {
+    padding-top: 15px;
+  }
+  .sidenav a {
+    font-size: 18px;
+  }
+}
+
+/* SIDEBAR NAVIGATION */
+.sidenav {
+  position: fixed;
+  z-index: 1;
+  width: 203px; /* 200px is the width of the header vl position */
+  background-color: #111;
+}
+
+.sidenav a {
+  padding: 6px 8px 6px 16px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  display: block;
+}
+
+.sidenav a:hover {
+  color: #f1f1f1;
+}
+
+/* PAGE CONTENT */
+.main {
+  margin-top: 40px; /* 60px is the height of the header navbar */
+  height: calc(100% - 40px);
+  padding: 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.rounded {
+  border-radius: 20%;
+}
+
+.vc {
+  position: absolute;
+  margin: 0;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+.vl {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 200px;
+  height: 100%;
+  margin-left: -3px;
+  border-left: 6px solid rgb(0, 255, 140);
+}
+
+/* ROUTE HIGHLIGHT */
+.router-link-exact-active {
+  border-left: 5px solid rgb(0, 255, 140);
+}
+
+/* FADE TRANSITION */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* SLIDE FADE TRANSITION */
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.4s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateY(-20px);
+  opacity: 0;
 }

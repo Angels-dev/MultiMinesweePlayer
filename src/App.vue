@@ -1,85 +1,65 @@
-<script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
+  <link href='https://fonts.googleapis.com/css?family=Roboto+Condensed' rel='stylesheet'>
+
   <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
+    <h1 class="vc" style="font-family: Roboto Condensed">MultiMinesweeper</h1>
+    <div class="vl"></div>
+    <h2 class="vc">
+        <p>Made by </p>
+        <a href="https://github.com/Angels-dev">Zachary</a>
+        <p> and </p>
+        <a href="https://github.com/betasown">Louis</a>
+    </h2>
+    <nav class="vc">
+        <p>Offline</p>
+        <p>|</p>
+        <p>Active Players : 2</p>
+    </nav>
+    <button style="right: 20px" class="vc">Light</button>
   </header>
 
-  <RouterView />
+  <router-view v-slot="{ Component }">
+    <transition name="slide-fade" mode="out-in">
+        <component :is="Component" />
+    </transition>
+  </router-view>
 </template>
 
 <style scoped>
 header {
-  line-height: 1.5;
-  max-height: 100vh;
+    position: fixed;
+    z-index: 2;
+    height: 40px;
+    width: 100%;
+    padding: 10px;
+    background-color: #333;
+    color: #fff;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+header * {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+h1 {
+    text-align: center;
+    left: 0;
+    width: 200px;
+    font-size: 22px;
+}
+
+h2 {
+    text-align: left;
+    left: 220px;
+    font-size: medium;
 }
 
 nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
+    right: 100px;
+    font-size: 20px;
 }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+nav * {
+    margin-left: 20px;
 }
 </style>

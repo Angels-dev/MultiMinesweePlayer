@@ -39,3 +39,20 @@ npm run build
 ```sh
 npm run lint
 ```
+
+## Fonctionnement du jeu    
+
+case appuis :
+    -> case découverte X
+        ->bombe ? X
+            ->game over X
+        ->while casevide ? X 
+            -> découverte case vide X
+                ->etc... X 
+            -> case numéro ? X 
+                ->découverte case numéro
+                    ->end 
+        -> case numéro ? X 
+            ->découverte case numéro
+                ->end
+

@@ -1,31 +1,40 @@
 type CellGrid = string[][]                                                                                      // type CellGrid (grille de jeu)
 type MineGrid = number[][]                                                                                      // type MineGrid (grille de bombes)
+type Directions = number[][]                                                                                    // type Directions (directions possibles)
+
+function getDirections(x: number, y: number): Directions {
+    return [[x-1, y-1], [x-1, y], [x-1, y+1], [x, y-1], [x, y+1], [x+1, y-1], [x+1, y], [x+1, y+1]]
+}
 
 function genCellGrid(width: number, length: number): CellGrid {                                                 // fonction genCellGrid (génération de la grille de jeu)
     return Array.from({ length: width }, () => Array.from({ length: length }, () => "/sUnknown.png"))
 }
 
-function genMineGrid(width: number, length: number, nbMines: number): MineGrid {                                // fonction genMineGrid (génération des bombes)
+function genMineGrid(width: number, length: number, nbMines: number, fx: number, fy: number): MineGrid {        // fonction genMineGrid (génération des bombes)
     const mineGrid: MineGrid = []                                                                               // initialisation de la grille de bombes
+    const directions = getDirections(fx, fy)
+    
     while (mineGrid.length < nbMines) {                                                                         // boucle pour placer les bombes
         const x = Math.floor(Math.random() * length)                                                            // position x de la bombe
         const y = Math.floor(Math.random() * width)                                                             // position y de la bombe
-        const indice = [y, x]                                                                                   // id de la bombe
-        if (!mineGrid.includes(indice)) mineGrid.push(indice)                                                   // si la bombe n'est pas déjà placée, on la place
+        const indice = [x, y]
+        
+        if (directions.some(d => d[0] === x && d[1] === y) || (x === fx && y === fy)) continue                  // vérifie si la bombe n'est pas déjà placée et si ce n'est pas le premier clic
+        if (!mineGrid.some(m => m[0] === x && m[1] === y)) mineGrid.push(indice)                                // vérifie si la bombe n'est pas déjà placée et si ce n'est pas le premier clic
     }
-    return mineGrid;                                                                                            // retour de la grille de bombes
+    mineGrid.sort((a, b) => a[0] - b[0] || a[1] - b[1])                                                         // Trier les bombes par ordre x puis y
+    return mineGrid                                                                                             // retour de la grille de bombes
 }
 
-function cliqueGauche(cellGrid: CellGrid, mineGrid: MineGrid, x: number, y: number) {                           // fonction main (début du jeu)
-    //const indice = [y, x]                                                                                     // id de la case cliquée
-    //if (mineGrid.includes(indice)) bombe()                                                                    // si la case cliquée est une bombe, on va dans la fonction bombe   
-    //else if (champDeMines[indice] === 0) {caseVide(indice);}                                                  // si la case cliquée est vide, on va dans la fonction caseVide
-    //else if (champDeMines[indice] !== 0) {decouvreCase(indice);}                                              // si la case cliquée est un numéro, on va dans la fonction decouvreCase
-    //decouvreCase(indice);
-    if (cellGrid[y][x] === '/sClick.png') return cellGrid[y][x] = '/sEmpty.png'                                 // modification de l'image de la case
+
+function cliqueGauche(gameStatus: number, cellGrid: CellGrid, mineGrid: MineGrid, x: number, y: number) {
+    const checkDrop = ['/sEmpty.png', '/sUnknown.png', '/sFlag.png', '/sQuestion.png']
+    if (checkDrop.includes(cellGrid[y][x])) return
+    else if (cellGrid[y][x] === '/sClick.png') checkCell(gameStatus, cellGrid, mineGrid, x, y)
+    else revealCell(gameStatus, cellGrid, mineGrid, x, y)
 }
 
-function cliqueDroit(cellGrid: string[][], x: number, y: number): void {                                        // fonction cliqueDroit (flag d'une case)                                                                                       // modification de l'image de la case
+function cliqueDroit(cellGrid: string[][], x: number, y: number) {                                              // fonction cliqueDroit (flag d'une case)                                                                                       // modification de l'image de la case
     switch (cellGrid[y][x]) {
         case '/sUnknown.png':
             cellGrid[y][x] = "/sFlag.png"
@@ -37,32 +46,60 @@ function cliqueDroit(cellGrid: string[][], x: number, y: number): void {        
             cellGrid[y][x] = "/sUnknown.png"
             break
     }
-}         
-
-
-/*
-const directions: number[] = [-11, -10, -9, -1, 1, 9, 10, 11];                                                                  // directions possibles pour découvrir les cases
-const champDeMines: number[] = [];                                                                                              // champ de mines (0 = case vide, 10 = bombe, 1 à 8 = nombre de bombes adjacentes)
-for (let i = 0; i < 100; i++) {champDeMines.push(0);}                                                                           // initialisation des cases à 0
-const casesDecouvertes: number[] = [];                                                                                          // cases découvertes (0 = case non découverte, 1 = case découverte, 2 = case flag)
-for (let i = 0; i < 100; i++) {casesDecouvertes.push(0);}                                                                       // initialisation des cases à 0
-
-function bombe(): void {                                                                                                        // fonction bombe (game over)
-    for (let i = 0; i < casesDecouvertes.length; i++) {casesDecouvertes[i] = 1;}
 }
 
-function caseVide(indice: number): void {                                                                                       // fonction caseVide (découverte des cases adjacentes à une case vide)
-    for (let i = 0; i < directions.length; i++) {                                                                               // parcours des directions
-        if (champDeMines[indice + directions[i]] !== 0) {decouvreCase(indice + directions[i]); return; }                        // si la case est un numéro, on ne fait rien
-        else if (casesDecouvertes[indice + directions[i]] === 2) {decouvreCase(indice + directions[i]); return;}                // si la case est un drapeau, on ne fait rien
-        else {decouvreCase(indice + directions[i]); caseVide(indice + directions[i]);}                                          // si la case est vide, on va dans la fonction caseVide
+function checkCell(gameStatus: number, cellGrid: CellGrid, mineGrid: MineGrid, x: number, y: number) {
+    if (mineGrid.some(m => m[0] === x && m[1] === y)) return gameOver(gameStatus, cellGrid, mineGrid, x, y)
+
+    let minesAdjacentes = 0
+    const directions = getDirections(x, y)
+    for (const [dx, dy] of directions) {
+        if (dx < 0 || dx >= cellGrid[0].length || dy < 0 || dy >= cellGrid.length) continue
+        if (mineGrid.some(m => m[0] === dx && m[1] === dy)) minesAdjacentes++
+    }
+
+    if (minesAdjacentes > 0) cellGrid[y][x] = `/s${minesAdjacentes}.png`
+    else {
+        cellGrid[y][x] = '/sEmpty.png'
+        for (const [dx, dy] of directions) {
+            if (dx >= 0 && dx < cellGrid[0].length && dy >= 0 && dy < cellGrid.length && cellGrid[dy][dx] === '/sUnknown.png') {
+                checkCell(gameStatus, cellGrid, mineGrid, dx, dy)
+            }
+        }
     }
 }
 
-function decouvreCase(indice: number): void {                                                                                   // fonction decouvreCase (découverte d'une case)
-    casesDecouvertes[indice] = 1;                                                                                               // modification dans le tableau des cases découvertes 
+function revealCell(gameStatus: number, cellGrid: CellGrid, mineGrid: MineGrid, x: number, y: number) {
+    const directions = getDirections(x, y)
+    let flagCount = 0
+    for (const [dx, dy] of directions) {
+        if (dx >= 0 && dx < cellGrid[0].length && dy >= 0 && dy < cellGrid.length && cellGrid[dy][dx] === '/sFlag.png') flagCount++
+    }
+    const cellValue = parseInt(cellGrid[y][x].match(/\/s(\d)\.png$/)?.[1] || '0')
+    if (flagCount === cellValue) {
+        for (const [dx, dy] of directions) {
+            if (dx >= 0 && dx < cellGrid[0].length && dy >= 0 && dy < cellGrid.length && cellGrid[dy][dx] === '/sHighlight.png') {
+                cellGrid[dy][dx] = '/sUnknown.png'
+                checkCell(gameStatus, cellGrid, mineGrid, dx, dy)
+            }
+        }
+    }
 }
-*/                                                                         
 
-export { genCellGrid, genMineGrid, cliqueGauche, cliqueDroit }                                                                  // export des variables et fonctions
-export type { CellGrid, MineGrid }                                                                                              // export des types
+function gameOver(gameStatus: number, cellGrid: CellGrid, mineGrid: MineGrid, x: number, y: number) {
+    for (const [mx, my] of mineGrid) {
+        if (cellGrid[my][mx] === '/sUnknown.png') cellGrid[my][mx] = '/sMine.png'
+    }
+    // Vérifier l'emplacement de tous les flags dans toute la grille et les remplacer par '/sFlagWrong.png' s'il y en a un qui n'est pas sur une bombe
+    for (let y = 0; y < cellGrid.length; y++) {
+        for (let x = 0; x < cellGrid[y].length; x++) {
+            if (cellGrid[y][x] === '/sFlag.png') if (!mineGrid.some(m => m[0] === x && m[1] === y)) cellGrid[y][x] = '/sFlagWrong.png'
+        }
+    }
+
+    cellGrid[y][x] = '/sExploded.png'
+    gameStatus = 3
+}
+
+export { getDirections, genCellGrid, genMineGrid, cliqueGauche, cliqueDroit }                                 // export des fonctions
+export type { Directions, CellGrid, MineGrid }                                                                // export des types

@@ -2,7 +2,7 @@
   <div class="main">
     <h1>MultiMinesweeper</h1>
     <p>
-      Bienvenue sur notre jeu !
+      Bienvenue sur notre jeu de démineur en ligne !
       <br>
       Pour jouer, il vous suffit de sélectionner le mode de jeu que vous souhaitez dans le menu ci-dessous.
     </p>

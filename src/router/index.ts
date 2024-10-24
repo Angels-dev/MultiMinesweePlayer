@@ -6,27 +6,27 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: () => import('../views/HomeView.vue')
+      component: () => import('@/views/HomeView.vue')
     },
     {
       path: '/about',
       name: 'about',
-      component: () => import('../views/AboutView.vue')
+      component: () => import('@/views/AboutView.vue')
     },
     {
       path: '/game',
       name: 'game',
-      component: () => import('../views/GameView.vue'),
+      component: () => import('@/views/GameView.vue'),
       children: [
         {
           path: 'solo',
           name: 'solo',
-          component: () => import('../views/Game/SoloView.vue')
+          component: () => import('@/views/Game/SoloView.vue')
         },
         {
           path: 'party',
           name: 'party',
-          component: () => import('../views/Game/PartyView.vue')
+          component: () => import('@/views/Game/PartyView.vue')
         }
       ]
     }

@@ -103,3 +103,5 @@ function gameOver(gameStatus: number, cellGrid: CellGrid, mineGrid: MineGrid, x:
 
 export { getDirections, genCellGrid, genMineGrid, cliqueGauche, cliqueDroit }                                 // export des fonctions
 export type { Directions, CellGrid, MineGrid }                                                                // export des types
+
+//test

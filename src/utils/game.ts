@@ -69,8 +69,12 @@ function checkCell(cellGrid: CellGrid, mineGrid: MineGrid, x: number, y: number)
     }
 
     // Si la cellule a des mines adjacentes, afficher le nombre de mines
-    if (minesAdjacentes > 0) cellGrid[y][x] = `/s${minesAdjacentes}.png`
-    else {
+    if (minesAdjacentes > 0) {
+        cellGrid[y][x] = `/s${minesAdjacentes}.png`
+        
+        const result = revealCell(cellGrid, mineGrid, x, y)
+        if (result !== 0) return result
+    } else {
         cellGrid[y][x] = '/sEmpty.png'
         for (const [dx, dy] of directions) {
             if (dx >= 0 && dx < cellGrid[0].length && dy >= 0 && dy < cellGrid.length && cellGrid[dy][dx] === '/sUnknown.png') {
@@ -100,7 +104,7 @@ function revealCell(cellGrid: CellGrid, mineGrid: MineGrid, x: number, y: number
     const cellValue = parseInt(cellGrid[y][x].match(/\/s(\d)\.png$/)?.[1] || '0')
     if (flagCount === cellValue) {
         for (const [dx, dy] of directions) {
-            if (dx >= 0 && dx < cellGrid[0].length && dy >= 0 && dy < cellGrid.length && cellGrid[dy][dx] === '/sHighlight.png') {
+            if (dx >= 0 && dx < cellGrid[0].length && dy >= 0 && dy < cellGrid.length && (cellGrid[dy][dx] === '/sHighlight.png' || cellGrid[dy][dx] === '/sUnknown.png')) {
                 cellGrid[dy][dx] = '/sUnknown.png'
 
                 const result = checkCell(cellGrid, mineGrid, dx, dy)

@@ -4,13 +4,13 @@ import { getDirections, genCellGrid, genMineGrid, cliqueGauche, cliqueDroit } fr
 import type { CellGrid, MineGrid } from '@/utils/game'
 
 // Variables du jeu
-const width = 10
-const length = 15
-const nbMines = 25
+const width = ref(10)
+const length = ref(15)
+const nbMines = ref(25)
 
 // Création grille des cases
 const cellGrid = ref<CellGrid>([])
-cellGrid.value = genCellGrid(width, length)
+cellGrid.value = genCellGrid(width.value, length.value)
 
 // Création grille des mines
 let mineGrid: MineGrid = []
@@ -21,13 +21,8 @@ const timer = ref(0)
 let timerInterval: number | undefined = undefined
 
 watch(gameStatus, async (status) => {
-  if (status === 1) {
-    timerInterval = setInterval(() => timer.value++, 1000)
-  } else {
-    if (timerInterval !== null) clearInterval(timerInterval)
-    if (status === 2) alert('Vous avez gagné !')
-    if (status === 3) alert('Vous avez perdu !')
-  }
+  if (status === 1) timerInterval = setInterval(() => timer.value++, 1000)
+  else clearInterval(timerInterval)
 })
 
 // État pour gérer le clic et la position de la cellule
@@ -52,11 +47,11 @@ const handleMouseDown = (rowIndex: number, cellIndex: number) => {
 const handleMouseUp = async (rowIndex: number, cellIndex: number) => {
   isMouseDown.value = false
   if (!mineGrid.length) {
-    mineGrid = genMineGrid(width, length, nbMines, cellIndex, rowIndex)
+    mineGrid = genMineGrid(width.value, length.value, nbMines.value, cellIndex, rowIndex)
     gameStatus.value = 1
   }
 
-  cliqueGauche(gameStatus.value, cellGrid.value, mineGrid, cellIndex, rowIndex)
+  gameStatus.value = cliqueGauche(cellGrid.value, mineGrid, cellIndex, rowIndex)
   currentCell.value = null
 
   // Réinitialiser les cases surlignées
@@ -125,37 +120,59 @@ onUnmounted(() => document.removeEventListener('mousemove', handleGlobalMouseMov
 
 <template>
   <div class="main">
-    <h1>Solo</h1>
-    <div class="timer" :gameStatus>{{ timer }}</div>
-    <div class="grid">
-      <div v-for="(row, rowIndex) in cellGrid" :key="rowIndex" class="row">
-        <div v-for="(cell, cellIndex) in row" :key="cellIndex">
-          <img class="cell" :src="cell"
-            @mousedown.right="cliqueDroit(cellGrid, cellIndex, rowIndex)"
-            @mousedown.left="handleMouseDown(rowIndex, cellIndex)"
-            @mouseup.left="handleMouseUp(rowIndex, cellIndex)"
-            @mousemove="handleMouseMove(rowIndex, cellIndex)"
-            @contextmenu.prevent
-            @select.prevent
-            draggable="false"
-          />
-        </div>
+    <div class="space">
+      <h1>Solo</h1>
+      <div class="timer" :gameStatus>Timer : {{ timer }}</div>
+
+      <div class="menu">
+        <input type="number" v-model="width" min="10" max="50" />Lignes (10-50)
+        <input type="number" v-model="length" min="10" max="50" />Colonnes (10-50)
+        <input type="number" v-model="nbMines" min="10" max="250" />Mines (10-250)
+        <button @click="gameStatus = 0">Nouvelle partie</button>
       </div>
     </div>
+
     <div class="grid">
       <div v-for="(row, rowIndex) in cellGrid" :key="rowIndex" class="row">
-        <div v-for="(cell, cellIndex) in row" :key="cellIndex">
-          <img class="cell" :src="mineGrid.some(mine => mine[0] === cellIndex && mine[1] === rowIndex) ? '/sMine.png' : '/sEmpty.png'" />
-        </div>
+        <img v-for="(cell, cellIndex) in row" :key="cellIndex" class="cell" :src="cell"
+          @mousedown.right="gameStatus == 1 ? cliqueDroit(cellGrid, cellIndex, rowIndex) : null"
+          @mousedown.left="gameStatus == 0 || gameStatus == 1 ? handleMouseDown(rowIndex, cellIndex) : null"
+          @mouseup.left="gameStatus == 0 || gameStatus == 1 ? handleMouseUp(rowIndex, cellIndex) : null"
+          @mousemove="gameStatus == 0 || gameStatus == 1 ? handleMouseMove(rowIndex, cellIndex) : null"
+          @contextmenu.prevent
+          @select.prevent
+          draggable="false"
+        />
       </div>
     </div>
+    <transition name="fade">
+      <div v-if="gameStatus === 2" class="message">Vous avez gagné !</div>
+      <div v-else-if="gameStatus === 3" class="message">Vous avez perdu !</div>
+    </transition>
   </div>
 </template>
 
 <style scoped>
+.space {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 100%;
+  margin: 30px 60px;
+  h1 {
+    flex: 2;
+  }
+}
+.menu {
+  flex: 2;
+  display: flex;
+  input {
+    margin-left: 20px;
+  }
+}
 .grid {
   display: grid;
-  border: 10px solid black;
+  border: 4px solid rgb(65, 65, 65);
 }
 .row {
   display: flex;

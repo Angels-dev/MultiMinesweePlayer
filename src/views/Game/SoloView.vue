@@ -35,8 +35,8 @@ const formatTime = (seconds: number) => {
 
   // Si les heures sont 0, ne pas les afficher
   const hoursDisplay = hours > 0 ? `${hours}:` : ''
-  // Afficher les minutes sans padding de 0
-  const minutesDisplay = `${minutes}:`
+  // Afficher les minutes avec un padding de 0 si elles sont inférieures à 10
+  const minutesDisplay = `${hours > 0 ? String(minutes).padStart(2, '0') : minutes}:`
   // Toujours afficher les secondes avec un padding de 0
   const secondsDisplay = String(secs).padStart(2, '0')
 
@@ -52,6 +52,10 @@ watch(gameStatus, async (status) => {
   if (status === 1) timerInterval = setInterval(() => timer.value++, 1000)
   else if (timerInterval) clearInterval(timerInterval)
 })
+
+// Variables pour stocker la position du curseur
+const mouseX = ref(0)
+const mouseY = ref(0)
 
 // État pour gérer le clic et la position de la cellule
 const isMouseDown = ref(false)
@@ -114,6 +118,9 @@ const handleMouseMove = (rowIndex: number, cellIndex: number) => {
 
 // Gestion des événements de déplacement de la souris et de la position de la cellule
 const handleGlobalMouseMove = (event: MouseEvent) => {
+  mouseX.value = event.clientX
+  mouseY.value = event.clientY
+
   if (isMouseDown.value && currentCell.value) {
     const target = event.target as HTMLElement
 
@@ -153,6 +160,12 @@ onUnmounted(() => document.removeEventListener('mousemove', handleGlobalMouseMov
       <div class="timer" :gameStatus>{{ formatTime(timer) }}</div>
     </div>
 
+    <transition name="fade">
+      <div v-if="gameStatus === 2 || gameStatus === 3" class="message" :style="{ top: mouseY + 'px', left: mouseX + 'px' }">
+        {{ gameStatus === 2 ? 'Vous avez gagné !' : 'Vous avez perdu !' }}
+      </div>
+    </transition>
+
     <div class="menu">
       <div class="presets">
         <button class="rounded" @click="width = 10; length = 15; nbMines = 20">Facile</button>
@@ -179,6 +192,7 @@ onUnmounted(() => document.removeEventListener('mousemove', handleGlobalMouseMov
       <button class="rounded newgame" @click="startNewGame">Nouvelle partie</button>
     </div>
 
+
     <div class="grid">
       <div v-for="(row, rowIndex) in cellGrid" :key="rowIndex" class="row">
         <img v-for="(cell, cellIndex) in row" :key="cellIndex" class="cell" :src="cell"
@@ -192,11 +206,6 @@ onUnmounted(() => document.removeEventListener('mousemove', handleGlobalMouseMov
         />
       </div>
     </div>
-    
-    <transition name="fade">
-      <div v-if="gameStatus === 2" class="message">Vous avez gagné !</div>
-      <div v-else-if="gameStatus === 3" class="message">Vous avez perdu !</div>
-    </transition>
   </div>
 </template>
 

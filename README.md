@@ -39,7 +39,7 @@ Avant de commencer, assurez-vous d'avoir les éléments suivants installés sur 
 
 1. Clonez le dépôt GitHub :
    ```bash
-   git clone https://github.com/votre-utilisateur/demineur-vue.git
+   git clone https://github.com/Angels-dev/MultiMinesweeper-Game
    ```
 
 2. Naviguez dans le répertoire du projet :

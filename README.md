@@ -44,7 +44,7 @@ Avant de commencer, assurez-vous d'avoir les éléments suivants installés sur 
 
 2. Naviguez dans le répertoire du projet :
    ```bash
-   cd demineur-vue
+   cd MultiMinesweeper-Game
    ```
 
 3. Installez les dépendances :

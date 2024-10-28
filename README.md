@@ -20,7 +20,7 @@ Vous pouvez jouer au jeu directement en ligne sur [https://minesweeper.zac.ovh/]
 
 ## Fonctionnalités
 
-- **Mode Solo** : Profitez du jeu classique avec des niveaux de difficulté ajustables (facile, moyen, difficile).
+- **Mode Solo** : Profitez du jeu classique avec des niveaux de difficulté ajustables (facile, moyen, difficile et extrême).
 - **Mode Multijoueur (en développement)** : Jouez contre vos amis en temps réel et tentez de marquer plus de cases qu'eux sans toucher de mines.
 - **Génération aléatoire des mines** : Les mines sont placées aléatoirement pour chaque nouvelle partie.
 - **Marquage de cases** : Utilisez le clic droit pour marquer une case soupçonnée de contenir une mine.

@@ -1,6 +1,6 @@
-type CellGrid = string[][]                                                                                      // type CellGrid (grille de jeu)
-type MineGrid = number[][]                                                                                      // type MineGrid (grille de bombes)
-type Directions = number[][]                                                                                    // type Directions (directions possibles)
+type CellGrid = string[][]   // type CellGrid (grille de jeu)
+type MineGrid = number[][]   // type MineGrid (grille de bombes)
+type Directions = number[][] // type Directions (directions possibles)
 
 function getDirections(x: number, y: number): Directions {
     return [[x-1, y-1], [x-1, y], [x-1, y+1], [x, y-1], [x, y+1], [x+1, y-1], [x+1, y], [x+1, y+1]]
@@ -27,14 +27,23 @@ function genMineGrid(width: number, length: number, nbMines: number, fx: number,
 }
 
 
-function cliqueGauche(gameStatus: number, cellGrid: CellGrid, mineGrid: MineGrid, x: number, y: number) {
+function cliqueGauche(cellGrid: CellGrid, mineGrid: MineGrid, x: number, y: number): number {
     const checkDrop = ['/sEmpty.png', '/sUnknown.png', '/sFlag.png', '/sQuestion.png']
-    if (checkDrop.includes(cellGrid[y][x])) return
-    else if (cellGrid[y][x] === '/sClick.png') checkCell(gameStatus, cellGrid, mineGrid, x, y)
-    else revealCell(gameStatus, cellGrid, mineGrid, x, y)
+    if (checkDrop.includes(cellGrid[y][x])) return 1
+    else if (cellGrid[y][x] === '/sClick.png') {
+        const result = checkCell(cellGrid, mineGrid, x, y)
+        if (result !== 0) return result
+    }
+    else {
+        const result = revealCell(cellGrid, mineGrid, x, y)
+        if (result !== 0) return result
+    }
+
+    // Continuer le jeu
+    return 1
 }
 
-function cliqueDroit(cellGrid: string[][], x: number, y: number) {                                              // fonction cliqueDroit (flag d'une case)                                                                                       // modification de l'image de la case
+function cliqueDroit(cellGrid: string[][], x: number, y: number) {                                              // fonction cliqueDroit (flag d'une case)
     switch (cellGrid[y][x]) {
         case '/sUnknown.png':
             cellGrid[y][x] = "/sFlag.png"
@@ -48,9 +57,10 @@ function cliqueDroit(cellGrid: string[][], x: number, y: number) {              
     }
 }
 
-function checkCell(gameStatus: number, cellGrid: CellGrid, mineGrid: MineGrid, x: number, y: number) {
-    if (mineGrid.some(m => m[0] === x && m[1] === y)) return gameOver(gameStatus, cellGrid, mineGrid, x, y)
+function checkCell(cellGrid: CellGrid, mineGrid: MineGrid, x: number, y: number): number {
+    if (mineGrid.some(m => m[0] === x && m[1] === y)) return gameOver(cellGrid, mineGrid, x, y)
 
+    // Compter le nombre de mines adjacentes
     let minesAdjacentes = 0
     const directions = getDirections(x, y)
     for (const [dx, dy] of directions) {
@@ -58,18 +68,34 @@ function checkCell(gameStatus: number, cellGrid: CellGrid, mineGrid: MineGrid, x
         if (mineGrid.some(m => m[0] === dx && m[1] === dy)) minesAdjacentes++
     }
 
-    if (minesAdjacentes > 0) cellGrid[y][x] = `/s${minesAdjacentes}.png`
-    else {
+    // Si la cellule a des mines adjacentes, afficher le nombre de mines
+    if (minesAdjacentes > 0) {
+        cellGrid[y][x] = `/s${minesAdjacentes}.png`
+        
+        const result = revealCell(cellGrid, mineGrid, x, y)
+        if (result !== 0) return result
+    } else {
         cellGrid[y][x] = '/sEmpty.png'
         for (const [dx, dy] of directions) {
             if (dx >= 0 && dx < cellGrid[0].length && dy >= 0 && dy < cellGrid.length && cellGrid[dy][dx] === '/sUnknown.png') {
-                checkCell(gameStatus, cellGrid, mineGrid, dx, dy)
+                const result = checkCell(cellGrid, mineGrid, dx, dy)
+                if (result !== 0) return result
             }
         }
     }
+
+    // Vérifier si toutes les cellules non-mines sont révélées pour déterminer la victoire
+    if (cellGrid.flat().every((cell, index) => {
+        const x = index % cellGrid[0].length
+        const y = Math.floor(index / cellGrid[0].length)
+        return cell !== '/sUnknown.png' || mineGrid.some(m => m[0] === x && m[1] === y)
+    })) return 2
+
+    // Continuer le jeu
+    return 0
 }
 
-function revealCell(gameStatus: number, cellGrid: CellGrid, mineGrid: MineGrid, x: number, y: number) {
+function revealCell(cellGrid: CellGrid, mineGrid: MineGrid, x: number, y: number): number {
     const directions = getDirections(x, y)
     let flagCount = 0
     for (const [dx, dy] of directions) {
@@ -78,18 +104,24 @@ function revealCell(gameStatus: number, cellGrid: CellGrid, mineGrid: MineGrid, 
     const cellValue = parseInt(cellGrid[y][x].match(/\/s(\d)\.png$/)?.[1] || '0')
     if (flagCount === cellValue) {
         for (const [dx, dy] of directions) {
-            if (dx >= 0 && dx < cellGrid[0].length && dy >= 0 && dy < cellGrid.length && cellGrid[dy][dx] === '/sHighlight.png') {
+            if (dx >= 0 && dx < cellGrid[0].length && dy >= 0 && dy < cellGrid.length && (cellGrid[dy][dx] === '/sHighlight.png' || cellGrid[dy][dx] === '/sUnknown.png')) {
                 cellGrid[dy][dx] = '/sUnknown.png'
-                checkCell(gameStatus, cellGrid, mineGrid, dx, dy)
+
+                const result = checkCell(cellGrid, mineGrid, dx, dy)
+                if (result !== 0) return result
             }
         }
     }
+
+    // Continuer le jeu
+    return 0
 }
 
-function gameOver(gameStatus: number, cellGrid: CellGrid, mineGrid: MineGrid, x: number, y: number) {
+function gameOver(cellGrid: CellGrid, mineGrid: MineGrid, x: number, y: number): number {
     for (const [mx, my] of mineGrid) {
         if (cellGrid[my][mx] === '/sUnknown.png') cellGrid[my][mx] = '/sMine.png'
     }
+
     // Vérifier l'emplacement de tous les flags dans toute la grille et les remplacer par '/sFlagWrong.png' s'il y en a un qui n'est pas sur une bombe
     for (let y = 0; y < cellGrid.length; y++) {
         for (let x = 0; x < cellGrid[y].length; x++) {
@@ -98,8 +130,8 @@ function gameOver(gameStatus: number, cellGrid: CellGrid, mineGrid: MineGrid, x:
     }
 
     cellGrid[y][x] = '/sExploded.png'
-    gameStatus = 3
+    return 3
 }
 
-export { getDirections, genCellGrid, genMineGrid, cliqueGauche, cliqueDroit }                                 // export des fonctions
-export type { Directions, CellGrid, MineGrid }                                                                // export des types
+export { getDirections, genCellGrid, genMineGrid, cliqueGauche, cliqueDroit } // export des fonctions
+export type { Directions, CellGrid, MineGrid }                                // export des types

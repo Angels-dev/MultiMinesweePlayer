@@ -45,38 +45,197 @@ a,
   }
 }
 
+/* APP HEADER */
+header {
+  position: fixed;
+  z-index: 2;
+  height: 40px;
+  width: 100%;
+  padding: 10px;
+  background-color: #333;
+  color: #fff;
+  
+  * {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  h1 {
+    text-align: center;
+    left: 0;
+    width: 200px;
+    font-size: 22px;
+  }
+
+  h2 {
+    text-align: left;
+    left: 220px;
+    font-size: medium;
+  }
+
+  nav {
+    right: 100px;
+    font-size: 20px;
+  }
+
+  nav * {
+    margin-left: 20px;
+  }
+}
+
+
 /* SIDEBAR NAVIGATION */
 .sidenav {
-  position: fixed;
+  position: absolute;
   z-index: 1;
-  width: 203px; /* 200px is the width of the header vl position */
+  width: 203px; /* 200px is the width of the header vl position + half the bar */
   background-color: #111;
-}
 
-.sidenav a {
-  padding: 6px 8px 6px 16px;
-  text-decoration: none;
-  font-size: 25px;
-  color: #818181;
-  display: block;
-}
+  a {
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    
+  }
 
-.sidenav a:hover {
-  color: #f1f1f1;
+  a:hover {
+    color: #f1f1f1;
+  }
 }
 
 /* PAGE CONTENT */
 .main {
-  margin-top: 40px; /* 60px is the height of the header navbar */
-  height: calc(100% - 40px);
-  padding: 2rem 2rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  gap: 10px;
+  align-items: center;
+  overflow-x: auto;
+  width: 100%;
+  height: calc(100% - 40px);
+  margin-top: 40px; /* 40px is the height of the header navbar */
+  padding: 2rem;
+  gap: 20px;
 }
 
+/* GAME BOARD */
+.space {
+  display: flex;
+  justify-content: end; /* Centre les deux éléments horizontalement */
+  width: 100%;
+  gap: 20px; /* Ajoute un espacement entre le h1 et le timer */
+
+  h1 {
+    font-weight: bold;
+    font-size: 20px;
+  }
+}
+
+.timer {
+  text-align: center;
+  width: 135px;
+  border-radius: 10px;
+  border: 2px solid #555;
+  background-color: #333;
+  color: white;
+  font-weight: bold;
+  font-size: 22px;
+}
+
+.menu {
+  display: flex;
+  justify-content: space-between; /* Aligne les deux groupes à gauche et à droite */
+  width: 100%; /* Prend toute la largeur disponible */
+  margin-top: -5px;
+  margin-bottom: 10px;
+
+  button {
+    cursor: pointer;
+    height: 36px;
+    color: white;
+    border-radius: 10px;
+    font-size: 16px;
+  }
+}
+
+.presets {
+  flex: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Ajoute un espacement entre les boutons */
+
+  button {
+    width: 75px;
+    height: 50px;
+    background-color: #3f77ff;
+    border: 2px solid #7aa0ff;
+
+  }
+  button:hover {
+    background-color: #1c5dff;
+  }
+}
+
+.inputs {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Ajoute un espacement entre les inputs */
+  margin-right: 20px;
+
+  div {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+  }
+
+  label {
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  input {
+    text-align: center;
+    width: 80px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+}
+
+.newgame {
+  width: 135px;
+  margin-top: 15px;
+  background-color: #4CAF50;
+  border: 2px solid #6bdf6f;
+}
+
+.newgame:hover {
+  background-color: #3b8a3f;
+}
+
+.grid {
+  display: grid;
+  border: 4px solid rgb(65, 65, 65);
+  margin: 0 auto; /* Centre la grille horizontalement */
+  overflow-x: auto; /* Active le défilement horizontal si nécessaire */
+  max-width: 100%; /* Empêche la grille de déborder trop */
+}
+
+.row {
+  display: flex;
+}
+
+.cell {
+  background-color: #f1f1f1;
+  text-align: center;
+  color: black;
+  width: 32px;
+  height: 32px;
+  user-select: none;
+}
+
+/* FORMATTING AND EFFECTS */
 .rounded {
   border-radius: 20%;
 }
@@ -97,6 +256,20 @@ a,
   height: 100%;
   margin-left: -3px;
   border-left: 6px solid rgb(0, 255, 140);
+}
+
+.message {
+  position: absolute;
+  z-index: 1000;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
+  padding: 10px;
+  transform: translate(-50%, 50%);
+  pointer-events: none;
+  white-space: nowrap;
+  font-weight: bold;
+  font-size: 18px;
 }
 
 /* ROUTE HIGHLIGHT */

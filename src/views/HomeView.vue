@@ -1,11 +1,18 @@
 <template>
   <div class="main">
+    <p class="wip">
+      Le jeu est actuellement en cours de développement.
+      <br>
+      Le mode multijoueur n'est pas implémenté et l'affichage est encore en cours de finalisation.
+    </p>
+
     <h1>MultiMinesweeper</h1>
     <p>
       Bienvenue sur notre jeu de démineur en ligne !
       <br>
       Pour jouer, il vous suffit de sélectionner le mode de jeu que vous souhaitez dans le menu ci-dessous.
     </p>
+
     <div class="buttons">
       <router-link to="/game/solo" v-slot="{ navigate }">
         <button @click="navigate">Solo</button>
@@ -20,6 +27,16 @@
 <style scoped>
 * {
     text-align: center;
+}
+
+.wip {
+  position: absolute;
+  bottom: 60px;
+  right: 40px;
+  text-align: right;
+  font-style: italic;
+  font-weight: bold;
+  font-size: 20px;
 }
 
 .buttons {
